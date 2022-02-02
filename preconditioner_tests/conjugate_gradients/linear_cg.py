@@ -117,7 +117,7 @@ class linear_cg(conjugate_gradients):
         if max_its is None:
             max_its = 10 * n + 1
         i = 0
-        while i < max_its and abs(residual) > tol:
+        while i < 100 and abs(residual) > tol:
             i += 1
             work_vectors[:,0:1] = mvm(work_vectors[:,3:4])
             alpha = precon_res / (work_vectors[:,3:4].T @ work_vectors[:,0:1]).item()
@@ -137,36 +137,3 @@ class linear_cg(conjugate_gradients):
             return work_vectors[:,1:2], 1, i
         else:
             return work_vectors[:,1:2], 0, i
-            
-            
-            
-
-n = 5
-X = torch.rand([n,n])
-A = X.T @ X + 0.0001*torch.eye(n)
-b = torch.rand([n,1])
-
-x_sol = torch.inverse(A) @ b
-
-vals, vecs = torch.linalg.eig(A)
-P = vecs[:, 0:int(n/2)] @ torch.diag(vals[0:int(n/2)]) @ vecs[:, 0:int(n/2)].T
-precon = torch.inverse(P.real)
-
-cg_ = linear_cg()
-cg_run = cg_(A, b,)
-cg_run_p = cg_(A, b, pmvm=precon)
-
-print(x_sol)
-print(cg_run)
-print(cg_run_p)
-
-
-
-
-
-
-
-
-
-
-
