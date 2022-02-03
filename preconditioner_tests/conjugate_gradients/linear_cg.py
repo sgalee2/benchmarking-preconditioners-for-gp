@@ -7,10 +7,12 @@ Created on Tue Feb  1 12:32:49 2022
 
 from __init__ import *
 from gpytorch.lazy import LazyTensor as GPLazyTensor
+from gpytorch.utils.pivoted_cholesky import pivoted_cholesky
 from typing import Union
+from time import time
 
 import torch
-
+import gpytorch
 
 Tensor = torch.Tensor
 
@@ -49,7 +51,7 @@ class linear_cg(conjugate_gradients):
             b: Tensor,
             x_0: Tensor = None,
             pmvm = None,
-            tol = 1e-4,
+            tol = 1e-5,
             max_its = 1000
         ):
         """
@@ -89,9 +91,9 @@ class linear_cg(conjugate_gradients):
         
         if pmvm is None:
             pmvm = self.no_precon
-        elif type(precon) == torch.Tensor:
-            pmvm = precon.matmul
-        elif not callable(precon):
+        elif type(pmvm) == torch.Tensor:
+            pmvm = pmvm.matmul
+        elif not callable(pmvm):
             TypeError('Preconditioner is not a tensor or callable.')
             
         work_vectors = torch.zeros(n,5)
@@ -117,7 +119,7 @@ class linear_cg(conjugate_gradients):
         if max_its is None:
             max_its = 10 * n + 1
         i = 0
-        while i < 100 and abs(residual) > tol:
+        while i < max_its and abs(residual) > tol:
             i += 1
             work_vectors[:,0:1] = mvm(work_vectors[:,3:4])
             alpha = precon_res / (work_vectors[:,3:4].T @ work_vectors[:,0:1]).item()
@@ -137,3 +139,4 @@ class linear_cg(conjugate_gradients):
             return work_vectors[:,1:2], 1, i
         else:
             return work_vectors[:,1:2], 0, i
+
