@@ -8,6 +8,7 @@ Created on Tue Feb  1 12:32:49 2022
 from __init__ import *
 from gpytorch.lazy import LazyTensor as GPLazyTensor
 from gpytorch.utils.pivoted_cholesky import pivoted_cholesky
+import matplotlib.pyplot as plt
 from typing import Union
 from time import time
 
@@ -51,7 +52,7 @@ class linear_cg(conjugate_gradients):
             b: Tensor,
             x_0: Tensor = None,
             pmvm = None,
-            tol = 1e-5,
+            tol = 1e-4,
             max_its = 1000
         ):
         """
@@ -139,4 +140,5 @@ class linear_cg(conjugate_gradients):
             return work_vectors[:,1:2], 1, i
         else:
             return work_vectors[:,1:2], 0, i
+
 
