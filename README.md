@@ -11,7 +11,7 @@ where y|X ~ N(&mu;, K) and &epsilon; is Gaussian noise. Here K is a covariance m
 <p align="center">
   L = log p(y | X, &theta;)
 </p>
-where &theta; is a vector of hyperparameters which define the kernel. The overhead cost of this training is the solution to a linear system in K, and the evaluation of its inverse trace and log determinant.
+where &theta; is a vector of hyperparameters which define the kernel. The overhead cost of this training is the solution to a linear system in K, and the evaluation of its inverse trace and log determinant ( O(n<sup>3</sup>) ) .
 <p> Predictions are made by evaluating
   <p align="center">
     &mu;<sub>*</sub> = K<sup>-1</sup>y,
