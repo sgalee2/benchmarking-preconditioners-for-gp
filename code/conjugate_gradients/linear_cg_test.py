@@ -3,13 +3,13 @@ from scipy.io import loadmat
 
 import numpy as np
 
-data = loadmat(r'C:\Users\sgalee2\Documents\GitHub\benchmarking-preconditioners-for-gp\MATLAB Files\protein.mat')['data']
+data = loadmat('..\MATLAB Files\protein.mat')['data']
 np.random.shuffle(data)
 data = torch.Tensor(data)
 N = data.shape[0]
 
 # make train/val/test START LOW, CAN HAPPILY ACCEPT N = 10,000
-n_train = 12000
+n_train = 1200
 train_x, train_y = data[:n_train, :-1], data[:n_train, -1:]
 test_x, test_y = data[n_train:, :-1], data[n_train:, -1:]
 
