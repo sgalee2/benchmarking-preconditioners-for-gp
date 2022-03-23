@@ -6,11 +6,15 @@ Created on Tue Feb  1 12:32:49 2022
 """
 
 from __init__ import *
+import gpytorch
+from gpytorch.utils.linear_cg_k import linear_cg_k
 from gpytorch.lazy import LazyTensor as GPLazyTensor
 from gpytorch.utils.pivoted_cholesky import pivoted_cholesky
 import matplotlib.pyplot as plt
 from typing import Union
 from time import time
+
+from Preconditioners.Preconditioners import *
 
 import torch
 import gpytorch
@@ -52,7 +56,7 @@ class linear_cg(conjugate_gradients):
             b: Tensor,
             x_0: Tensor = None,
             pmvm = None,
-            tol = 1e-4,
+            tol = 1e-8,
             max_its = 1000
         ):
         """
@@ -96,18 +100,21 @@ class linear_cg(conjugate_gradients):
             pmvm = pmvm.matmul
         elif not callable(pmvm):
             TypeError('Preconditioner is not a tensor or callable.')
-            
+        
+        """
+        We need to change the work vectors 
+        """
         work_vectors = torch.zeros(n,5)
         
-        if x_0 is not None:
+        if x_0 is not None: #do we have an initial guess?
             
-            work_vectors[:,1:2] = x_0
-            work_vectors[:,2:3] = b - mvm(x_0)
-            residual = torch.norm(work_vectors[:,2:3]).item()
+            work_vectors[:,1:2] = x_0 #1:2 is current solution
+            work_vectors[:,2:3] = b - mvm(x_0) #2:3 is current residual
+            residual = torch.norm(work_vectors[:,2:3]).item() #residual norm
             
-            work_vectors[:,4:5] = pmvm(work_vectors[:,2:3])
-            work_vectors[:,3:4] = work_vectors[:,4:5]
-            precon_res = work_vectors[:,2:3].T @ work_vectors[:,4:5]
+            work_vectors[:,4:5] = pmvm(work_vectors[:,2:3]) #4:5 is preconditioned residual
+            work_vectors[:,3:4] = work_vectors[:,4:5] #3:4 current search direction
+            precon_res = work_vectors[:,2:3].T @ work_vectors[:,4:5] #res.T @ precon_res
             
         else:
             
@@ -140,5 +147,3 @@ class linear_cg(conjugate_gradients):
             return work_vectors[:,1:2], 1, i
         else:
             return work_vectors[:,1:2], 0, i
-
-
