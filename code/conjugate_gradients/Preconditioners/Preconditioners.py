@@ -144,11 +144,11 @@ class Pivoted_Cholesky_(Preconditioner):
             mat_vec_prod = scaled_v - self.L @ mid_prod @ L_t_dot_v
             
         else:
-            tri_solve = torch.triangular_solve
+            p_inv = torch.pinverse
 
-            Linvv = tri_solve(v, self.L, upper=False)[0]
+            Linvv = p_inv(self.L)
             
-            mat_vec_prod = tri_solve(Linvv, self.L.T, upper=True)[0]
+            mat_vec_prod = Linvv.T @ Linvv @ v
             
         return mat_vec_prod
 
@@ -169,4 +169,3 @@ class SKI_(Preconditioner):
 
 class Spectral(Preconditioner):
     pass
-
